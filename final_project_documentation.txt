@@ -1,0 +1,1347 @@
+# Das Magische Zauberbuch 🔮
+
+Ein immersives PWA-Textadventure mit KI-generierten Inhalten, entwickelt mit React, TypeScript und Supabase.
+
+[![CI/CD Pipeline](https://github.com/username/das-magische-zauberbuch/workflows/CI/CD%20Pipeline/badge.svg)](https://github.com/username/das-magische-zauberbuch/actions)
+[![codecov](https://codecov.io/gh/username/das-magische-zauberbuch/branch/main/graph/badge.svg)](https://codecov.io/gh/username/das-magische-zauberbuch)
+[![Lighthouse Score](https://img.shields.io/badge/Lighthouse-95%2B-brightgreen.svg)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fzauberbuch.example.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+## 🌟 Features
+
+### Kernfunktionalitäten
+- **Interaktives Textadventure** mit verzweigten Storylines
+- **KI-generierte Inhalte** durch OpenRouter API Integration
+- **PWA-Funktionalität** mit vollständiger Offline-Unterstützung
+- **Responsives Design** für Desktop, Tablet und Mobile
+- **Auto-Save System** mit lokaler und Cloud-Synchronisation
+- **Flag-basiertes Storytelling** für komplexe Narrative
+
+### Technische Highlights
+- **Modern React 18** mit TypeScript und Hooks
+- **Material-UI** für konsistente Benutzeroberfläche
+- **Supabase Backend** mit Row Level Security
+- **Service Worker** für Offline-First Architecture
+- **Docker-Support** für einfache Deployment
+- **Comprehensive Testing** mit Vitest und Playwright
+
+### Admin-Features
+- **Story-Editor** mit Drag & Drop Interface
+- **Szenen-Manager** mit visueller Verknüpfung
+- **Flag-System** mit automatischer Usage-Analyse
+- **Import/Export** in verschiedenen Formaten
+- **Analytics Dashboard** mit Story-Statistiken
+- **AI-Content Generation** für automatische Story-Erstellung
+
+## 🚀 Quick Start
+
+### Voraussetzungen
+- Node.js ≥ 16.14.0
+- npm ≥ 8.0.0
+- Git
+- Supabase Account
+
+### Installation
+
+```bash
+# Repository klonen
+git clone https://github.com/username/das-magische-zauberbuch.git
+cd das-magische-zauberbuch
+
+# Dependencies installieren
+npm install
+
+# Environment-Variablen konfigurieren
+cp .env.example .env
+# Bearbeite .env mit deinen Supabase-Credentials
+
+# Database Setup
+npm run db:setup
+
+# Development Server starten
+npm run dev
+```
+
+Die Anwendung ist dann unter `http://localhost:5173` verfügbar.
+
+### Docker Setup (Alternative)
+
+```bash
+# Docker Container bauen und starten
+docker-compose up -d
+
+# Logs anzeigen
+docker-compose logs -f app
+```
+
+## 📖 Projektstruktur
+
+```
+das-magische-zauberbuch/
+├── public/                     # Statische Assets
+│   ├── manifest.json          # PWA Manifest
+│   ├── sw.js                  # Service Worker
+│   └── icons/                 # App Icons
+├── src/
+│   ├── components/            # React Komponenten
+│   │   ├── admin/            # Admin Panel Komponenten
+│   │   ├── common/           # Wiederverwendbare Komponenten
+│   │   ├── game/             # Spiel-spezifische Komponenten
+│   │   └── layout/           # Layout Komponenten
+│   ├── engine/               # Game Engine
+│   │   ├── GameEngine.ts     # Haupt-Engine
+│   │   ├── SceneProcessor.ts # Szenenverarbeitung
+│   │   ├── ChoiceProcessor.ts# Entscheidungslogik
+│   │   └── ConditionEvaluator.ts # Bedingungsauswertung
+│   ├── hooks/                # Custom React Hooks
+│   ├── pages/                # Seiten-Komponenten
+│   ├── services/             # API Services
+│   ├── types/                # TypeScript Definitionen
+│   ├── utils/                # Utility Funktionen
+│   └── App.tsx               # Hauptkomponente
+├── supabase/                 # Supabase Konfiguration
+│   ├── migrations/           # Database Migrationen
+│   └── functions/            # Edge Functions
+├── tests/                    # Test Dateien
+├── docs/                     # Dokumentation
+└── deployment/               # Deployment Konfigurationen
+```
+
+## 🎮 Spieleentwicklung
+
+### Story erstellen
+
+1. **Admin Panel öffnen**: Navigiere zu `/admin`
+2. **Neue Story**: Klicke auf das "+" Symbol
+3. **Szenen hinzufügen**: Verwende den Szenen-Editor
+4. **Entscheidungen verknüpfen**: Verbinde Szenen mit dem Choice-Editor
+5. **Flags konfigurieren**: Nutze das Flag-System für Variablen
+6. **Testen**: Verwende die Vorschau-Funktion
+7. **Veröffentlichen**: Publiziere deine Story
+
+### Flag-System
+
+Flags ermöglichen komplexe Story-Verzweigungen:
+
+```typescript
+// In Szenen-Effekten
+{
+  "flags": {
+    "has_magic_sword": true,
+    "character_name": "Gandalf",
+    "level": 5
+  }
+}
+
+// In Bedingungen
+{
+  "flag": "has_magic_sword",
+  "flagValue": true
+}
+```
+
+### Text-Platzhalter
+
+Dynamische Texte mit Platzhaltern:
+
+```
+Hallo {player.name}! Du hast {flag.magic_power} Magiepunkte.
+```
+
+## 🔧 Entwicklung
+
+### Scripts
+
+```bash
+# Development
+npm run dev                    # Dev Server starten
+npm run build                  # Production Build
+npm run preview               # Build Vorschau
+
+# Testing
+npm run test                  # Unit Tests
+npm run test:e2e             # End-to-End Tests
+npm run test:coverage        # Coverage Report
+
+# Code Quality
+npm run lint                  # ESLint
+npm run type-check           # TypeScript Check
+
+# Deployment
+npm run docker:build         # Docker Image bauen
+npm run deploy:staging       # Staging Deployment
+npm run deploy:production    # Production Deployment
+```
+
+### Testing
+
+Das Projekt verwendet ein umfassendes Testing-Framework:
+
+```bash
+# Automatisierte Tests
+npm run test:unit            # Unit Tests mit Vitest
+npm run test:integration     # Integration Tests
+npm run test:e2e            # End-to-End Tests mit Playwright
+
+# Performance Tests
+npm run lighthouse          # Lighthouse Audit
+npm run performance:test    # Performance Benchmarks
+
+# Security Tests
+npm run security:audit      # NPM Audit
+npm run security:scan       # Snyk Vulnerability Scan
+```
+
+## 🚀 Deployment
+
+### Staging
+
+```bash
+# Automatisches Staging bei Push zu develop
+git push origin develop
+
+# Manuelles Staging
+npm run deploy:staging
+```
+
+### Production
+
+```bash
+# Automatisches Production bei Push zu main
+git push origin main
+
+# Manuelles Production Deployment
+npm run build
+npm run deploy:production
+```
+
+### Docker Deployment
+
+```bash
+# Multi-stage Build
+docker build -t zauberbuch:latest .
+
+# Mit Docker Compose
+docker-compose -f docker-compose.prod.yml up -d
+
+# Mit Health Checks
+docker-compose -f docker-compose.yml up -d
+```
+
+## 📊 Monitoring
+
+### Performance Monitoring
+
+- **Lighthouse CI**: Automatische Performance-Tests
+- **Grafana Dashboard**: Real-time Metriken
+- **Prometheus**: Metriken-Sammlung
+- **Error Tracking**: Automatisches Error-Logging
+
+### Analytics
+
+```bash
+# Zugänglich unter
+http://localhost:3000          # Grafana Dashboard
+http://localhost:9090          # Prometheus Metriken
+```
+
+## 🔐 Sicherheit
+
+### Authentifizierung
+- Supabase Auth mit Row Level Security
+- JWT-basierte Session-Verwaltung
+- Sichere Password-Richtlinien
+
+### Datenschutz
+- DSGVO-konforme Datenverarbeitung
+- Opt-in für Analytics
+- Sichere Datenübertragung (HTTPS)
+
+### API-Sicherheit
+- Rate Limiting
+- Input Validation
+- SQL Injection Schutz
+
+## 🌐 Browser-Unterstützung
+
+- Chrome 88+
+- Firefox 85+
+- Safari 14+
+- Edge 88+
+
+### PWA-Features
+- ✅ Service Worker
+- ✅ Web App Manifest
+- ✅ Offline-Funktionalität
+- ✅ Push Notifications
+- ✅ App-Installation
+
+## 🤝 Contributing
+
+Siehe [CONTRIBUTING.md](CONTRIBUTING.md) für Entwicklerrichtlinien.
+
+### Development Workflow
+
+1. Fork des Repositories
+2. Feature Branch erstellen (`git checkout -b feature/amazing-feature`)
+3. Änderungen committen (`git commit -m 'Add amazing feature'`)
+4. Branch pushen (`git push origin feature/amazing-feature`)
+5. Pull Request erstellen
+
+### Code Standards
+
+- **TypeScript**: Strikte Typisierung
+- **ESLint**: Code-Linting mit Airbnb-Config
+- **Prettier**: Code-Formatierung
+- **Conventional Commits**: Commit-Message Standards
+
+## 📝 Changelog
+
+Siehe [CHANGELOG.md](CHANGELOG.md) für Versionshistorie.
+
+## 📄 Lizenz
+
+Dieses Projekt ist unter der MIT-Lizenz lizenziert - siehe [LICENSE](LICENSE) für Details.
+
+## 🙏 Danksagungen
+
+- [React Team](https://reactjs.org/) für das großartige Framework
+- [Supabase](https://supabase.com/) für die Backend-Infrastruktur
+- [Material-UI](https://mui.com/) für die UI-Komponenten
+- [OpenRouter](https://openrouter.ai/) für die KI-Integration
+
+## 📞 Support
+
+- **Documentation**: [Wiki](https://github.com/username/das-magische-zauberbuch/wiki)
+- **Issues**: [GitHub Issues](https://github.com/username/das-magische-zauberbuch/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/username/das-magische-zauberbuch/discussions)
+- **Email**: support@zauberbuch.example.com
+
+---
+
+**Made with ❤️ and ✨ magic**
+
+---
+
+# CONTRIBUTING.md
+# Contributing zu Das Magische Zauberbuch
+
+Vielen Dank für dein Interesse, zu "Das Magische Zauberbuch" beizutragen! Diese Anleitung hilft dir dabei, effektiv zum Projekt beizutragen.
+
+## 📋 Inhaltsverzeichnis
+
+- [Code of Conduct](#code-of-conduct)
+- [Wie kann ich beitragen?](#wie-kann-ich-beitragen)
+- [Development Setup](#development-setup)
+- [Code Standards](#code-standards)
+- [Testing](#testing)
+- [Pull Request Process](#pull-request-process)
+- [Issue Guidelines](#issue-guidelines)
+
+## 🤝 Code of Conduct
+
+Dieses Projekt folgt dem [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md). Durch die Teilnahme verpflichtest du dich, diesen Code einzuhalten.
+
+## 🚀 Wie kann ich beitragen?
+
+### 🐛 Bug Reports
+
+Bugs werden als [GitHub Issues](https://github.com/username/das-magische-zauberbuch/issues) verfolgt. Erstelle ein Issue und stelle folgende Informationen bereit:
+
+- **Beschreibung**: Klare und präzise Beschreibung des Bugs
+- **Reproduktion**: Schritte zur Reproduktion des Verhaltens
+- **Erwartetes Verhalten**: Was sollte passieren
+- **Screenshots**: Falls zutreffend, füge Screenshots hinzu
+- **Umgebung**: 
+  - OS: [z.B. iOS]
+  - Browser: [z.B. Chrome, Safari]
+  - Version: [z.B. 22]
+
+### 💡 Feature Requests
+
+Feature Requests sind willkommen! Erstelle ein Issue mit:
+
+- **Problem**: Welches Problem löst das Feature?
+- **Lösung**: Beschreibe deine gewünschte Lösung
+- **Alternativen**: Beschreibe alternative Lösungen
+- **Zusätzlicher Kontext**: Weitere Informationen oder Screenshots
+
+### 📝 Documentation
+
+Verbesserungen der Dokumentation sind immer willkommen:
+
+- README-Updates
+- Code-Kommentare
+- API-Dokumentation
+- Tutorials und Guides
+
+### 🎨 Design Contributions
+
+- UI/UX Verbesserungen
+- Icon-Design
+- Responsive Design Optimierungen
+- Accessibility Verbesserungen
+
+## 🛠 Development Setup
+
+### Voraussetzungen
+
+```bash
+Node.js >= 16.14.0
+npm >= 8.0.0
+Git
+Docker (optional)
+```
+
+### Setup
+
+```bash
+# Repository forken und klonen
+git clone https://github.com/YOUR_USERNAME/das-magische-zauberbuch.git
+cd das-magische-zauberbuch
+
+# Dependencies installieren
+npm install
+
+# Pre-commit hooks installieren
+npm run prepare
+
+# Environment setup
+cp .env.example .env
+# Bearbeite .env mit deinen Werten
+
+# Development server starten
+npm run dev
+```
+
+### Supabase Setup
+
+1. Erstelle ein Supabase-Projekt
+2. Kopiere die URL und Keys in deine `.env`
+3. Führe die Migrationen aus:
+
+```bash
+npx supabase db reset
+```
+
+## 📏 Code Standards
+
+### TypeScript
+
+- **Strikte Typisierung**: Verwende explizite Typen
+- **Interface over Type**: Bevorzuge Interfaces für Objekt-Typen
+- **Naming Conventions**: PascalCase für Typen, camelCase für Variablen
+
+```typescript
+// ✅ Gut
+interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+}
+
+const getUserProfile = (userId: string): Promise<UserProfile> => {
+  // Implementation
+};
+
+// ❌ Vermeiden
+const getUser = (id: any) => {
+  // Implementation
+};
+```
+
+### React Components
+
+- **Functional Components**: Verwende Funktionskomponenten mit Hooks
+- **Props Interface**: Definiere Props-Interfaces
+- **Default Exports**: Verwende default exports für Komponenten
+
+```typescript
+// ✅ Gut
+interface UserCardProps {
+  user: UserProfile;
+  onEdit: (user: UserProfile) => void;
+}
+
+export const UserCard: React.FC<UserCardProps> = ({ user, onEdit }) => {
+  return (
+    <Card>
+      <CardContent>
+        <Typography>{user.name}</Typography>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default UserCard;
+```
+
+### CSS & Styling
+
+- **Material-UI**: Verwende MUI-Komponenten
+- **sx Prop**: Bevorzuge sx für Styling
+- **Theme**: Nutze das Theme-System
+
+```typescript
+// ✅ Gut
+<Box sx={{ 
+  display: 'flex', 
+  flexDirection: 'column',
+  gap: 2,
+  p: 3 
+}}>
+  <Typography variant="h6" color="primary.main">
+    Title
+  </Typography>
+</Box>
+```
+
+### Commit Messages
+
+Wir verwenden [Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+type(scope): description
+
+feat(auth): add login with Google
+fix(game): resolve scene navigation bug
+docs(readme): update installation instructions
+style(components): format code with prettier
+refactor(api): extract common utilities
+test(engine): add unit tests for GameEngine
+chore(deps): update dependencies
+```
+
+### Branch Naming
+
+```
+feature/add-user-authentication
+bugfix/fix-scene-navigation
+hotfix/critical-security-patch
+docs/update-api-documentation
+```
+
+## 🧪 Testing
+
+### Test Types
+
+```bash
+# Unit Tests
+npm run test:unit
+
+# Integration Tests  
+npm run test:integration
+
+# End-to-End Tests
+npm run test:e2e
+
+# Coverage
+npm run test:coverage
+```
+
+### Writing Tests
+
+```typescript
+// ✅ Unit Test Beispiel
+import { describe, it, expect } from 'vitest';
+import { GameEngine } from '../GameEngine';
+
+describe('GameEngine', () => {
+  it('should initialize successfully', async () => {
+    const engine = new GameEngine();
+    await engine.initialize();
+    
+    expect(engine.isEngineInitialized()).toBe(true);
+  });
+});
+```
+
+### Test Requirements
+
+- **Unit Tests**: Für alle Utility-Funktionen und Services
+- **Integration Tests**: Für API-Integrationen
+- **E2E Tests**: Für kritische User Journeys
+- **Coverage**: Mindestens 80% Code Coverage
+
+## 🔄 Pull Request Process
+
+### Vor dem PR
+
+1. **Issue erstellen**: Erstelle oder referenziere ein Issue
+2. **Branch erstellen**: `git checkout -b feature/your-feature`
+3. **Tests schreiben**: Füge Tests für neue Funktionalitäten hinzu
+4. **Linting**: `npm run lint`
+5. **Tests ausführen**: `npm run test`
+
+### PR Requirements
+
+- [ ] **Beschreibung**: Klare Beschreibung der Änderungen
+- [ ] **Issue Link**: Verknüpfung zum entsprechenden Issue
+- [ ] **Tests**: Alle Tests bestehen
+- [ ] **Linting**: Keine Linting-Fehler
+- [ ] **Documentation**: Relevante Dokumentation aktualisiert
+- [ ] **Screenshots**: Bei UI-Änderungen
+
+### PR Template
+
+```markdown
+## Beschreibung
+Kurze Beschreibung der Änderungen
+
+## Type of Change
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Breaking change
+- [ ] Documentation update
+
+## Testing
+- [ ] Unit tests pass
+- [ ] Integration tests pass
+- [ ] E2E tests pass
+- [ ] Manual testing completed
+
+## Screenshots
+(Bei UI-Änderungen)
+
+## Related Issues
+Fixes #123
+```
+
+### Review Process
+
+1. **Automated Checks**: CI/CD Pipeline muss bestehen
+2. **Code Review**: Mindestens ein Reviewer
+3. **Testing**: Reviewer testet die Änderungen
+4. **Approval**: Approval von Maintainer erforderlich
+
+## 📝 Issue Guidelines
+
+### Bug Report Template
+
+```markdown
+**Beschreibung**
+Klare Beschreibung des Bugs
+
+**Reproduktion**
+Schritte zur Reproduktion:
+1. Gehe zu '...'
+2. Klicke auf '...'
+3. Scrolle nach unten zu '...'
+4. Siehe Fehler
+
+**Erwartetes Verhalten**
+Was sollte passieren
+
+**Screenshots**
+Falls zutreffend
+
+**Umgebung**
+- OS: [z.B. iOS]
+- Browser: [z.B. chrome, safari]
+- Version: [z.B. 22]
+```
+
+### Feature Request Template
+
+```markdown
+**Ist dein Feature Request mit einem Problem verbunden?**
+Klare Beschreibung des Problems
+
+**Beschreibe die gewünschte Lösung**
+Klare Beschreibung der gewünschten Lösung
+
+**Beschreibe Alternativen**
+Alternativen, die du in Betracht gezogen hast
+
+**Zusätzlicher Kontext**
+Weitere Informationen oder Screenshots
+```
+
+## 🏷 Labels
+
+Wir verwenden folgende Labels:
+
+- **Type**: `bug`, `feature`, `documentation`, `question`
+- **Priority**: `low`, `medium`, `high`, `critical`
+- **Status**: `needs-triage`, `in-progress`, `needs-review`
+- **Component**: `frontend`, `backend`, `game-engine`, `admin-panel`
+
+## 🎯 Areas for Contribution
+
+### High Priority
+
+- **Performance Optimierungen**
+- **Accessibility Verbesserungen**
+- **Mobile Responsiveness**
+- **Testing Coverage**
+
+### Medium Priority
+
+- **Documentation**
+- **UI/UX Improvements**
+- **Additional Story Templates**
+- **Internationalization**
+
+### Good First Issues
+
+Suche nach Issues mit dem Label `good-first-issue` für Einstiegsmöglichkeiten.
+
+## 📚 Resources
+
+- [React Documentation](https://reactjs.org/docs)
+- [Material-UI Documentation](https://mui.com/)
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
+- [Supabase Documentation](https://supabase.com/docs)
+
+## 🆘 Hilfe bekommen
+
+- **GitHub Discussions**: Für allgemeine Fragen
+- **Issue Tracker**: Für Bugs und Feature Requests
+- **Discord**: [Community Server Link]
+- **Email**: developers@zauberbuch.example.com
+
+---
+
+Vielen Dank für deinen Beitrag! 🙏
+
+---
+
+# vite.config.ts
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { VitePWA } from 'vite-plugin-pwa';
+import path from 'path';
+
+export default defineConfig({
+  plugins: [
+    react(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/api\.supabase\.co\/.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'supabase-api-cache',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 // 24 hours
+              },
+              cacheKeyWillBeUsed: async ({ request }) => {
+                return `${request.url}?timestamp=${Math.floor(Date.now() / (1000 * 60 * 5))}`;
+              }
+            }
+          },
+          {
+            urlPattern: /^https:\/\/openrouter\.ai\/.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'openrouter-api-cache',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 // 1 hour
+              }
+            }
+          }
+        ]
+      },
+      manifest: {
+        name: 'Das Magische Zauberbuch',
+        short_name: 'Zauberbuch',
+        description: 'Ein immersives PWA-Textadventure mit KI-generierten Inhalten',
+        theme_color: '#8B5CF6',
+        background_color: '#0F0F23',
+        display: 'standalone',
+        orientation: 'portrait-primary',
+        scope: '/',
+        start_url: '/',
+        categories: ['games', 'entertainment'],
+        icons: [
+          {
+            src: 'icons/icon-72.png',
+            sizes: '72x72',
+            type: 'image/png'
+          },
+          {
+            src: 'icons/icon-96.png',
+            sizes: '96x96',
+            type: 'image/png'
+          },
+          {
+            src: 'icons/icon-128.png',
+            sizes: '128x128',
+            type: 'image/png'
+          },
+          {
+            src: 'icons/icon-144.png',
+            sizes: '144x144',
+            type: 'image/png'
+          },
+          {
+            src: 'icons/icon-152.png',
+            sizes: '152x152',
+            type: 'image/png'
+          },
+          {
+            src: 'icons/icon-192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: 'icons/icon-384.png',
+            sizes: '384x384',
+            type: 'image/png'
+          },
+          {
+            src: 'icons/icon-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: 'icons/icon-maskable-192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'maskable'
+          },
+          {
+            src: 'icons/icon-maskable-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
+          }
+        ],
+        shortcuts: [
+          {
+            name: 'Neues Spiel',
+            short_name: 'Neu',
+            description: 'Starte ein neues Abenteuer',
+            url: '/game/new',
+            icons: [{ src: 'icons/shortcut-new.png', sizes: '96x96' }]
+          },
+          {
+            name: 'Spiel laden',
+            short_name: 'Laden',
+            description: 'Lade einen gespeicherten Spielstand',
+            url: '/game/load',
+            icons: [{ src: 'icons/shortcut-load.png', sizes: '96x96' }]
+          },
+          {
+            name: 'Story-Editor',
+            short_name: 'Editor',
+            description: 'Erstelle eigene Geschichten',
+            url: '/admin',
+            icons: [{ src: 'icons/shortcut-editor.png', sizes: '96x96' }]
+          }
+        ],
+        screenshots: [
+          {
+            src: 'screenshots/screenshot-wide.png',
+            sizes: '1280x720',
+            type: 'image/png',
+            form_factor: 'wide',
+            label: 'Hauptspielbereich mit Story-Navigation'
+          },
+          {
+            src: 'screenshots/screenshot-narrow.png',
+            sizes: '720x1280',
+            type: 'image/png',
+            form_factor: 'narrow',
+            label: 'Mobile Spielansicht'
+          }
+        ]
+      }
+    })
+  ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+      '@components': path.resolve(__dirname, './src/components'),
+      '@pages': path.resolve(__dirname, './src/pages'),
+      '@services': path.resolve(__dirname, './src/services'),
+      '@utils': path.resolve(__dirname, './src/utils'),
+      '@types': path.resolve(__dirname, './src/types'),
+      '@hooks': path.resolve(__dirname, './src/hooks'),
+      '@engine': path.resolve(__dirname, './src/engine')
+    }
+  },
+  build: {
+    target: 'esnext',
+    outDir: 'dist',
+    assetsDir: 'assets',
+    sourcemap: process.env.NODE_ENV !== 'production',
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: process.env.NODE_ENV === 'production',
+        drop_debugger: process.env.NODE_ENV === 'production'
+      }
+    },
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          ui: ['@mui/material', '@mui/icons-material'],
+          game: ['./src/engine/GameEngine.ts', './src/engine/SceneProcessor.ts'],
+          utils: ['./src/utils/eventBus.ts', './src/utils/pwaUtils.ts']
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000
+  },
+  server: {
+    port: 5173,
+    host: true,
+    hmr: {
+      overlay: true
+    }
+  },
+  preview: {
+    port: 4173,
+    host: true
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', '@mui/material', '@mui/icons-material']
+  },
+  define: {
+    __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
+    __BUILD_TIME__: JSON.stringify(new Date().toISOString())
+  }
+});
+
+---
+
+# tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+
+    /* Path mapping */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@components/*": ["./src/components/*"],
+      "@pages/*": ["./src/pages/*"],
+      "@services/*": ["./src/services/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@types/*": ["./src/types/*"],
+      "@hooks/*": ["./src/hooks/*"],
+      "@engine/*": ["./src/engine/*"]
+    },
+
+    /* Additional strict checks */
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "exactOptionalPropertyTypes": true,
+
+    /* Advanced */
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
+  "include": [
+    "src",
+    "vite.config.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build"
+  ],
+  "references": [
+    { "path": "./tsconfig.node.json" }
+  ]
+}
+
+---
+
+# eslint.config.js
+import js from '@eslint/js';
+import globals from 'globals';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
+import tseslint from '@typescript-eslint/eslint-plugin';
+import tseslintParser from '@typescript-eslint/parser';
+
+export default [
+  {
+    ignores: ['dist', 'node_modules', 'coverage']
+  },
+  {
+    files: ['**/*.{ts,tsx}'],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.browser,
+      parser: tseslintParser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+        ecmaFeatures: {
+          jsx: true
+        }
+      }
+    },
+    plugins: {
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
+      '@typescript-eslint': tseslint
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+      ...reactHooks.configs.recommended.rules,
+      'react-refresh/only-export-components': [
+        'warn',
+        { allowConstantExport: true }
+      ],
+      
+      // TypeScript specific rules
+      '@typescript-eslint/no-unused-vars': ['error', { 
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_'
+      }],
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/prefer-const': 'error',
+      '@typescript-eslint/no-var-requires': 'error',
+      
+      // General rules
+      'no-console': ['warn', { allow: ['warn', 'error'] }],
+      'prefer-const': 'error',
+      'no-var': 'error',
+      'object-shorthand': 'error',
+      'prefer-template': 'error',
+      'template-curly-spacing': 'error',
+      'prefer-destructuring': ['error', {
+        'array': false,
+        'object': true
+      }],
+      
+      // React specific rules
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
+      
+      // Import rules
+      'no-duplicate-imports': 'error',
+      
+      // Code style
+      'indent': ['error', 2, { SwitchCase: 1 }],
+      'quotes': ['error', 'single'],
+      'semi': ['error', 'always'],
+      'comma-dangle': ['error', 'never'],
+      'object-curly-spacing': ['error', 'always'],
+      'array-bracket-spacing': ['error', 'never'],
+      'space-before-blocks': 'error',
+      'keyword-spacing': 'error',
+      'space-infix-ops': 'error',
+      'eol-last': 'error',
+      'no-trailing-spaces': 'error',
+      'max-len': ['error', { 
+        code: 100, 
+        ignoreUrls: true,
+        ignoreStrings: true,
+        ignoreTemplateLiterals: true
+      }]
+    }
+  },
+  {
+    files: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      'no-console': 'off'
+    }
+  }
+];
+
+---
+
+# monitoring/prometheus.yml
+# Prometheus Configuration for Das Magische Zauberbuch
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "alert_rules.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'zauberbuch-app'
+    static_configs:
+      - targets: ['app:80']
+    metrics_path: /metrics
+    scrape_interval: 30s
+
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['app:80']
+    metrics_path: /nginx_status
+    scrape_interval: 30s
+
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+    metrics_path: /metrics
+
+---
+
+# scripts/deploy.sh
+#!/bin/bash
+
+# Das Magische Zauberbuch - Deployment Script
+# Production Deployment Automation
+
+set -e
+
+# Configuration
+APP_NAME="das-magische-zauberbuch"
+DOCKER_IMAGE="zauberbuch"
+BACKUP_DIR="/opt/backups"
+DEPLOY_DIR="/opt/zauberbuch"
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Logging functions
+log_info() {
+    echo -e "${GREEN}[INFO]${NC} $1"
+}
+
+log_warn() {
+    echo -e "${YELLOW}[WARN]${NC} $1"
+}
+
+log_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+# Check if running as root
+check_root() {
+    if [[ $EUID -eq 0 ]]; then
+        log_error "This script should not be run as root"
+        exit 1
+    fi
+}
+
+# Check dependencies
+check_dependencies() {
+    log_info "Checking dependencies..."
+    
+    command -v docker >/dev/null 2>&1 || { 
+        log_error "Docker is required but not installed"; exit 1; 
+    }
+    
+    command -v docker-compose >/dev/null 2>&1 || { 
+        log_error "Docker Compose is required but not installed"; exit 1; 
+    }
+    
+    log_info "Dependencies check passed"
+}
+
+# Create backup
+create_backup() {
+    log_info "Creating backup..."
+    
+    TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+    BACKUP_FILE="$BACKUP_DIR/${APP_NAME}_backup_$TIMESTAMP.tar.gz"
+    
+    mkdir -p $BACKUP_DIR
+    
+    if [ -d "$DEPLOY_DIR" ]; then
+        tar -czf $BACKUP_FILE -C $DEPLOY_DIR . 2>/dev/null || {
+            log_warn "Backup creation failed or directory empty"
+        }
+        log_info "Backup created: $BACKUP_FILE"
+    else
+        log_warn "Deploy directory does not exist, skipping backup"
+    fi
+}
+
+# Deploy application
+deploy_app() {
+    log_info "Deploying application..."
+    
+    cd $DEPLOY_DIR
+    
+    # Pull latest images
+    log_info "Pulling latest Docker images..."
+    docker-compose pull
+    
+    # Stop running containers
+    log_info "Stopping running containers..."
+    docker-compose down --remove-orphans
+    
+    # Start new containers
+    log_info "Starting new containers..."
+    docker-compose up -d
+    
+    # Wait for services to be ready
+    log_info "Waiting for services to be ready..."
+    sleep 30
+    
+    # Health check
+    health_check
+}
+
+# Health check
+health_check() {
+    log_info "Performing health check..."
+    
+    MAX_RETRIES=10
+    RETRY_COUNT=0
+    
+    while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+        if curl -sf http://localhost/health > /dev/null 2>&1; then
+            log_info "Health check passed"
+            return 0
+        fi
+        
+        RETRY_COUNT=$((RETRY_COUNT + 1))
+        log_warn "Health check failed, retrying ($RETRY_COUNT/$MAX_RETRIES)..."
+        sleep 10
+    done
+    
+    log_error "Health check failed after $MAX_RETRIES attempts"
+    return 1
+}
+
+# Cleanup old backups
+cleanup_backups() {
+    log_info "Cleaning up old backups..."
+    
+    # Keep only last 10 backups
+    cd $BACKUP_DIR
+    ls -t ${APP_NAME}_backup_*.tar.gz 2>/dev/null | tail -n +11 | xargs -r rm -f
+    
+    log_info "Backup cleanup completed"
+}
+
+# Cleanup old Docker images
+cleanup_docker() {
+    log_info "Cleaning up old Docker images..."
+    
+    docker system prune -f
+    docker image prune -f
+    
+    log_info "Docker cleanup completed"
+}
+
+# Main deployment function
+main() {
+    log_info "Starting deployment of $APP_NAME..."
+    
+    check_root
+    check_dependencies
+    create_backup
+    deploy_app
+    
+    if [ $? -eq 0 ]; then
+        log_info "Deployment completed successfully"
+        cleanup_backups
+        cleanup_docker
+    else
+        log_error "Deployment failed"
+        log_info "Attempting rollback..."
+        rollback
+        exit 1
+    fi
+}
+
+# Rollback function
+rollback() {
+    log_warn "Performing rollback..."
+    
+    cd $DEPLOY_DIR
+    docker-compose down
+    
+    # Find latest backup
+    LATEST_BACKUP=$(ls -t $BACKUP_DIR/${APP_NAME}_backup_*.tar.gz 2>/dev/null | head -n 1)
+    
+    if [ -n "$LATEST_BACKUP" ]; then
+        log_info "Restoring from backup: $LATEST_BACKUP"
+        tar -xzf $LATEST_BACKUP -C $DEPLOY_DIR
+        docker-compose up -d
+        
+        if health_check; then
+            log_info "Rollback completed successfully"
+        else
+            log_error "Rollback failed"
+        fi
+    else
+        log_error "No backup found for rollback"
+    fi
+}
+
+# Script entry point
+case "${1:-deploy}" in
+    deploy)
+        main
+        ;;
+    rollback)
+        rollback
+        ;;
+    health)
+        health_check
+        ;;
+    backup)
+        create_backup
+        ;;
+    cleanup)
+        cleanup_backups
+        cleanup_docker
+        ;;
+    *)
+        echo "Usage: $0 {deploy|rollback|health|backup|cleanup}"
+        echo "  deploy  - Deploy the application (default)"
+        echo "  rollback - Rollback to previous version"
+        echo "  health  - Perform health check"
+        echo "  backup  - Create backup only"
+        echo "  cleanup - Cleanup old backups and Docker images"
+        exit 1
+        ;;
+esac

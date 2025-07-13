@@ -1,0 +1,709 @@
+# Dockerfile
+# Das Magische Zauberbuch - Production Docker Configuration
+# Version: 1.0.0 - Production Ready
+
+# Multi-stage build für optimierte Production Images
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+# Package files kopieren für besseres Caching
+COPY package.json package-lock.json ./
+
+# Dependencies installieren
+RUN npm ci --only=production
+
+# Source code kopieren
+COPY . .
+
+# Build für Production
+RUN npm run build
+
+# Production Image
+FROM nginx:alpine AS production
+
+# Custom nginx config
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Static files vom Builder kopieren
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost/ || exit 1
+
+# Nginx starten
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+
+---
+
+# docker-compose.yml
+# Das Magische Zauberbuch - Complete Development & Production Environment
+version: '3.8'
+
+services:
+  # Frontend Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - NODE_ENV=production
+      - REACT_APP_SUPABASE_URL=${SUPABASE_URL}
+      - REACT_APP_SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - REACT_APP_OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - REACT_APP_VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY}
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    restart: unless-stopped
+    networks:
+      - zauberbuch-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.zauberbuch.rule=Host(`zauberbuch.example.com`)"
+      - "traefik.http.routers.zauberbuch.tls=true"
+      - "traefik.http.routers.zauberbuch.tls.certresolver=letsencrypt"
+
+  # Reverse Proxy
+  traefik:
+    image: traefik:v2.10
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.email=admin@example.com"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/acme.json"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./acme.json:/acme.json
+    networks:
+      - zauberbuch-network
+    restart: unless-stopped
+
+  # Redis for Caching (optional)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - zauberbuch-network
+    restart: unless-stopped
+
+  # Monitoring with Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+    networks:
+      - zauberbuch-network
+    restart: unless-stopped
+
+  # Grafana for Visualization
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    networks:
+      - zauberbuch-network
+    restart: unless-stopped
+
+networks:
+  zauberbuch-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+  prometheus-data:
+  grafana-data:
+
+---
+
+# .github/workflows/ci-cd.yml
+# Das Magische Zauberbuch - CI/CD Pipeline
+# Automated Testing, Building, and Deployment
+
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  NODE_VERSION: '18'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # Testing Phase
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x, 20.x]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run linting
+      run: npm run lint
+      
+    - name: Run type checking
+      run: npm run type-check
+      
+    - name: Run unit tests
+      run: npm run test:unit
+      
+    - name: Run integration tests
+      run: npm run test:integration
+      
+    - name: Run e2e tests
+      run: npm run test:e2e
+      
+    - name: Generate test coverage
+      run: npm run test:coverage
+      
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./coverage/coverage-final.json
+
+  # Security Scanning
+  security:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Run security audit
+      run: npm audit --audit-level=high
+      
+    - name: Run Snyk vulnerability scan
+      uses: snyk/actions/node@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: --severity-threshold=high
+
+  # Build Phase
+  build:
+    runs-on: ubuntu-latest
+    needs: [test, security]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build application
+      run: npm run build
+      env:
+        CI: false
+        GENERATE_SOURCEMAP: false
+        
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-files
+        path: dist/
+
+  # Docker Build & Push
+  docker:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    
+    permissions:
+      contents: read
+      packages: write
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Login to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+          
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  # Deployment
+  deploy:
+    runs-on: ubuntu-latest
+    needs: docker
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Deploy to production
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.PRODUCTION_HOST }}
+        username: ${{ secrets.PRODUCTION_USER }}
+        key: ${{ secrets.PRODUCTION_SSH_KEY }}
+        script: |
+          cd /opt/zauberbuch
+          docker-compose pull
+          docker-compose up -d --remove-orphans
+          docker system prune -f
+
+  # Performance Testing
+  lighthouse:
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Run Lighthouse CI
+      uses: treosh/lighthouse-ci-action@v10
+      with:
+        uploadArtifacts: true
+        temporaryPublicStorage: true
+        urls: |
+          https://zauberbuch.example.com
+          https://zauberbuch.example.com/game
+          https://zauberbuch.example.com/admin
+
+---
+
+# nginx.conf
+# Das Magische Zauberbuch - Production Nginx Configuration
+
+user nginx;
+worker_processes auto;
+error_log /var/log/nginx/error.log notice;
+pid /var/run/nginx.pid;
+
+events {
+    worker_connections 1024;
+    use epoll;
+    multi_accept on;
+}
+
+http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    # Logging
+    log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                    '$status $body_bytes_sent "$http_referer" '
+                    '"$http_user_agent" "$http_x_forwarded_for"';
+    access_log /var/log/nginx/access.log main;
+
+    # Performance optimizations
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
+    types_hash_max_size 2048;
+    server_tokens off;
+
+    # Gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_types
+        application/atom+xml
+        application/geo+json
+        application/javascript
+        application/x-javascript
+        application/json
+        application/ld+json
+        application/manifest+json
+        application/rdf+xml
+        application/rss+xml
+        application/xhtml+xml
+        application/xml
+        font/eot
+        font/otf
+        font/ttf
+        image/svg+xml
+        text/css
+        text/javascript
+        text/plain
+        text/xml;
+
+    # Brotli compression (if module available)
+    # brotli on;
+    # brotli_comp_level 6;
+    # brotli_types text/xml image/svg+xml application/x-font-ttf image/vnd.microsoft.icon application/x-font-opentype application/json font/eot application/vnd.ms-fontobject application/javascript font/otf application/xml application/xhtml+xml text/javascript application/x-javascript text/plain application/xml+rss text/css;
+
+    # Security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "no-referrer-when-downgrade" always;
+    add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
+
+    # Rate limiting
+    limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
+    limit_req_zone $binary_remote_addr zone=login:10m rate=1r/s;
+
+    # Main server block
+    server {
+        listen 80;
+        listen [::]:80;
+        server_name _;
+        
+        root /usr/share/nginx/html;
+        index index.html;
+
+        # Security
+        location ~ /\. {
+            deny all;
+        }
+
+        # API rate limiting
+        location /api/ {
+            limit_req zone=api burst=20 nodelay;
+            try_files $uri $uri/ =404;
+        }
+
+        # Login rate limiting
+        location /api/auth/ {
+            limit_req zone=login burst=5 nodelay;
+            try_files $uri $uri/ =404;
+        }
+
+        # Static assets caching
+        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+            add_header Vary Accept-Encoding;
+            access_log off;
+        }
+
+        # Service Worker - no cache
+        location /sw.js {
+            expires -1;
+            add_header Cache-Control "no-cache, no-store, must-revalidate";
+            add_header Pragma "no-cache";
+        }
+
+        # Manifest - short cache
+        location /manifest.json {
+            expires 1d;
+            add_header Cache-Control "public";
+        }
+
+        # HTML files - no cache
+        location ~* \.html$ {
+            expires -1;
+            add_header Cache-Control "no-cache, no-store, must-revalidate";
+            add_header Pragma "no-cache";
+        }
+
+        # React Router - serve index.html for all routes
+        location / {
+            try_files $uri $uri/ /index.html;
+            expires -1;
+            add_header Cache-Control "no-cache, no-store, must-revalidate";
+            add_header Pragma "no-cache";
+        }
+
+        # Health check endpoint
+        location /health {
+            access_log off;
+            return 200 "healthy\n";
+            add_header Content-Type text/plain;
+        }
+
+        # Robots.txt
+        location = /robots.txt {
+            allow all;
+            log_not_found off;
+            access_log off;
+        }
+
+        # Error pages
+        error_page 404 /index.html;
+        error_page 500 502 503 504 /50x.html;
+        location = /50x.html {
+            root /usr/share/nginx/html;
+        }
+    }
+}
+
+---
+
+# package.json
+{
+  "name": "das-magische-zauberbuch",
+  "version": "1.0.0",
+  "description": "Ein immersives PWA-Textadventure mit KI-generierten Inhalten",
+  "private": true,
+  "homepage": "https://zauberbuch.example.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/username/das-magische-zauberbuch.git"
+  },
+  "author": {
+    "name": "Das Magische Zauberbuch Team",
+    "email": "team@zauberbuch.example.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "textadventure",
+    "pwa",
+    "react",
+    "typescript",
+    "game",
+    "interactive-fiction",
+    "ai-generated",
+    "offline-first"
+  ],
+  "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.14.19",
+    "@mui/material": "^5.14.20",
+    "@supabase/supabase-js": "^2.38.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.20.1",
+    "react-beautiful-dnd": "^13.1.1",
+    "react-error-boundary": "^4.0.11",
+    "workbox-window": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.39",
+    "@types/react-dom": "^18.2.17",
+    "@types/react-beautiful-dnd": "^13.1.6",
+    "@typescript-eslint/eslint-plugin": "^6.13.1",
+    "@typescript-eslint/parser": "^6.13.1",
+    "@vitejs/plugin-react": "^4.1.1",
+    "@vitest/ui": "^0.34.6",
+    "eslint": "^8.54.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.4",
+    "jsdom": "^22.1.0",
+    "lighthouse": "^11.3.0",
+    "typescript": "^5.2.2",
+    "vite": "^4.5.0",
+    "vite-plugin-pwa": "^0.16.7",
+    "vitest": "^0.34.6",
+    "workbox-cli": "^7.0.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "build:analyze": "npm run build && npx vite-bundle-analyzer dist/assets/*.js",
+    "preview": "vite preview",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext ts,tsx --fix",
+    "type-check": "tsc --noEmit",
+    "test": "vitest",
+    "test:unit": "vitest run --reporter=verbose",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:e2e": "playwright test",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui",
+    "pwa:generate-sw": "workbox generateSW workbox-config.js",
+    "docker:build": "docker build -t zauberbuch:latest .",
+    "docker:run": "docker run -p 80:80 zauberbuch:latest",
+    "docker:compose": "docker-compose up -d",
+    "docker:compose:dev": "docker-compose -f docker-compose.dev.yml up",
+    "deploy:staging": "npm run build && rsync -avz --delete dist/ staging:/var/www/zauberbuch-staging/",
+    "deploy:production": "npm run build && rsync -avz --delete dist/ production:/var/www/zauberbuch/",
+    "analyze:bundle": "npx vite-bundle-analyzer",
+    "lighthouse": "lighthouse https://zauberbuch.example.com --output=html --output-path=./lighthouse-report.html",
+    "security:audit": "npm audit --audit-level=high",
+    "security:scan": "snyk test",
+    "performance:test": "lighthouse-ci autorun",
+    "clean": "rm -rf dist node_modules/.cache",
+    "clean:install": "rm -rf node_modules package-lock.json && npm install",
+    "postinstall": "npm run type-check"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "engines": {
+    "node": ">=16.14.0",
+    "npm": ">=8.0.0"
+  }
+}
+
+---
+
+# .env.example
+# Das Magische Zauberbuch - Environment Configuration Example
+# Copy this file to .env and fill in your values
+
+# Application
+NODE_ENV=development
+VITE_APP_TITLE="Das Magische Zauberbuch"
+VITE_APP_DESCRIPTION="Ein immersives PWA-Textadventure"
+VITE_APP_VERSION=1.0.0
+
+# Supabase Configuration
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key-here
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
+
+# OpenRouter AI API
+VITE_OPENROUTER_API_KEY=your-openrouter-api-key-here
+
+# PWA Push Notifications
+VITE_VAPID_PUBLIC_KEY=your-vapid-public-key-here
+VAPID_PRIVATE_KEY=your-vapid-private-key-here
+
+# Analytics (optional)
+VITE_GA_TRACKING_ID=GA-XXXXXXXXX-X
+VITE_SENTRY_DSN=https://your-sentry-dsn-here
+
+# Security
+JWT_SECRET=your-jwt-secret-here
+ENCRYPTION_KEY=your-encryption-key-here
+
+# External APIs (optional)
+OPENAI_API_KEY=your-openai-api-key-here
+CLAUDE_API_KEY=your-claude-api-key-here
+
+# Deployment
+PRODUCTION_HOST=your-production-server.com
+PRODUCTION_USER=deploy
+STAGING_HOST=staging.zauberbuch.com
+
+# Monitoring
+PROMETHEUS_ENDPOINT=http://localhost:9090
+GRAFANA_ENDPOINT=http://localhost:3000
+
+# Cache Configuration
+REDIS_URL=redis://localhost:6379
+CACHE_TTL=3600
+
+# File Upload
+MAX_FILE_SIZE=10485760
+ALLOWED_FILE_TYPES=.json,.zauberbuch,.twee
+
+# Rate Limiting
+RATE_LIMIT_WINDOW=3600000
+RATE_LIMIT_MAX_REQUESTS=1000
+
+# Development
+VITE_DEV_TOOLS=true
+VITE_DEBUG_MODE=false
+
+---
+
+# .env.production
+# Das Magische Zauberbuch - Production Environment Configuration
+
+NODE_ENV=production
+VITE_APP_TITLE="Das Magische Zauberbuch"
+VITE_APP_VERSION=1.0.0
+
+# Production URLs (replace with actual values)
+VITE_SUPABASE_URL=https://prod-project.supabase.co
+VITE_SUPABASE_ANON_KEY=prod-anon-key-here
+
+# Disable development features
+VITE_DEV_TOOLS=false
+VITE_DEBUG_MODE=false
+
+# Production optimizations
+GENERATE_SOURCEMAP=false
+INLINE_RUNTIME_CHUNK=false
+
+# Security settings
+HTTPS=true
+HOST=0.0.0.0
+PORT=80

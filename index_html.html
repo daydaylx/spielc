@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- SEO Meta Tags -->
+  <title>Das Magische Zauberbuch - Interaktives Textadventure</title>
+  <meta name="description" content="Ein innovatives PWA-basiertes Textadventure mit KI-gesteuerter Story-Generierung. Erlebe dynamische Abenteuer in einer magischen Welt." />
+  <meta name="keywords" content="Textadventure, PWA, Spiel, KI, Interactive Fiction, Abenteuer, Magie" />
+  <meta name="author" content="Das Magische Zauberbuch Team" />
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://magisches-zauberbuch.com/" />
+  <meta property="og:title" content="Das Magische Zauberbuch - Interaktives Textadventure" />
+  <meta property="og:description" content="Ein innovatives PWA-basiertes Textadventure mit KI-gesteuerter Story-Generierung." />
+  <meta property="og:image" content="/images/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="de_DE" />
+  
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="https://magisches-zauberbuch.com/" />
+  <meta property="twitter:title" content="Das Magische Zauberbuch - Interaktives Textadventure" />
+  <meta property="twitter:description" content="Ein innovatives PWA-basiertes Textadventure mit KI-gesteuerter Story-Generierung." />
+  <meta property="twitter:image" content="/images/twitter-image.png" />
+  
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#2D5A27" />
+  <meta name="background-color" content="#F8F6F0" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Zauberbuch" />
+  
+  <!-- Icons -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#2D5A27" />
+  
+  <!-- Preconnect für bessere Performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://openrouter.ai" />
+  
+  <!-- Web Fonts - Optimiert für magische Atmosphäre -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Medieval+Sharp&family=Quintessential&family=Roboto+Slab:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  
+  <!-- Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  
+  <!-- Critical CSS für besseres LCP -->
+  <style>
+    /* Critical CSS für sofortiges Rendering */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    html {
+      height: 100%;
+      scroll-behavior: smooth;
+    }
+    
+    body {
+      height: 100%;
+      font-family: 'EB Garamond', 'Georgia', serif;
+      background: linear-gradient(135deg, #F8F6F0 0%, #E8E6E3 100%);
+      color: #2C3E50;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+    
+    #root {
+      height: 100%;
+      min-height: 100vh;
+    }
+    
+    /* Loading Spinner */
+    .loading-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #F8F6F0 0%, #E8E6E3 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid #D4AF37;
+      border-top: 4px solid #2D5A27;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    .loading-text {
+      margin-top: 20px;
+      font-family: 'Cinzel', serif;
+      font-size: 18px;
+      color: #2D5A27;
+      text-align: center;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Verhindere FOUC (Flash of Unstyled Content) */
+    .app-hidden {
+      visibility: hidden;
+    }
+    
+    .app-visible {
+      visibility: visible;
+    }
+  </style>
+  
+  <!-- Structured Data für SEO -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "Das Magische Zauberbuch",
+    "description": "Ein innovatives PWA-basiertes Textadventure mit KI-gesteuerter Story-Generierung",
+    "genre": ["Adventure", "Interactive Fiction", "Text-based Game"],
+    "gameplatform": ["Web Browser", "Progressive Web App"],
+    "operatingSystem": ["Any"],
+    "applicationCategory": "Game",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "EUR"
+    },
+    "author": {
+      "@type": "Organization",
+      "name": "Das Magische Zauberbuch Team"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Das Magische Zauberbuch Team"
+    },
+    "datePublished": "2024",
+    "inLanguage": "de-DE",
+    "isAccessibleForFree": true,
+    "gamePlatform": "Web",
+    "playMode": "SinglePlayer"
+  }
+  </script>
+</head>
+<body>
+  <!-- Haupt-App-Container -->
+  <div id="root" class="app-hidden">
+    <!-- Loading Screen - wird durch React ersetzt -->
+    <div class="loading-container" id="initial-loading">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">
+        Das Magische Zauberbuch wird geladen...<br>
+        <small>Bitte warten Sie einen Moment</small>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Noscript Fallback -->
+  <noscript>
+    <div style="
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #F8F6F0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+      font-family: 'EB Garamond', Georgia, serif;
+      color: #2C3E50;
+      z-index: 10000;
+    ">
+      <h1 style="font-family: 'Cinzel', serif; font-size: 2.5em; margin-bottom: 20px; color: #2D5A27;">
+        Das Magische Zauberbuch
+      </h1>
+      <p style="font-size: 1.2em; margin-bottom: 20px; max-width: 600px;">
+        Dieses interaktive Textadventure benötigt JavaScript, um zu funktionieren.
+      </p>
+      <p style="color: #666; max-width: 500px;">
+        Bitte aktivieren Sie JavaScript in Ihrem Browser und laden Sie die Seite neu, 
+        um das magische Abenteuer zu erleben.
+      </p>
+    </div>
+  </noscript>
+  
+  <!-- Service Worker Registration -->
+  <script>
+    // Zeige App nach dem Laden
+    window.addEventListener('load', () => {
+      const root = document.getElementById('root');
+      const loading = document.getElementById('initial-loading');
+      
+      // Kleine Verzögerung für smooth transition
+      setTimeout(() => {
+        if (root) root.classList.add('app-visible');
+        if (loading) loading.style.display = 'none';
+      }, 100);
+    });
+    
+    // Service Worker Registration für PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('SW registered: ', registration);
+          })
+          .catch((registrationError) => {
+            console.log('SW registration failed: ', registrationError);
+          });
+      });
+    }
+    
+    // Installierbarkeit der PWA
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      deferredPrompt = e;
+      // Event für die App verfügbar machen
+      window.dispatchEvent(new CustomEvent('pwa-installable', { detail: e }));
+    });
+    
+    // Erfolgreiche Installation
+    window.addEventListener('appinstalled', () => {
+      console.log('PWA wurde installiert');
+      deferredPrompt = null;
+    });
+  </script>
+  
+  <!-- React App wird hier eingehängt -->
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+</html>
